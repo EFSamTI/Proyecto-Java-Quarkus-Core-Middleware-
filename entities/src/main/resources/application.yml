@@ -1,0 +1,18 @@
+quarkus:
+  container-image:
+    builder: docker
+  datasource:
+    "entities":
+      db-kind: postgresql
+      username: ${PG_USER}
+      password: ${PG_PWD}
+      reactive:
+        url: ${PG_URL}
+  http:
+    host: 0.0.0.0
+    port: 8091
+    root-path: /v1/api
+    cors:
+      ~: true
+      origins: /.*/
+      headers: origin,accept,authorization,content-type,x-requested-with
