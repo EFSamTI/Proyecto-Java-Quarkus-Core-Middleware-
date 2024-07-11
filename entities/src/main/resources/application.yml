@@ -8,6 +8,9 @@ quarkus:
       password: ${PG_PWD}
       reactive:
         url: ${PG_URL}
+  mongodb:
+    connection-string: ${MONGO_URL}
+    database: ${MONGO_DB}
   http:
     host: 0.0.0.0
     port: 8091

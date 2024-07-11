@@ -1,0 +1,12 @@
+services:
+  entities:
+    build: .
+    dockerfile: Entities
+  environment:
+    - PG_URL=${PG_URL}
+    - PG_USER=${PG_USER}
+    - PG_PWD=${PG_PWD}
+    - MONGO_URL=${MONGO_URL}
+    - MONGO_DB=${MONGO_DB}
+  ports:
+    - "8091:8091"
