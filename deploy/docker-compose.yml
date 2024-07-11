@@ -2,7 +2,7 @@ services:
   entities:
     build:
       context: .
-      dockerfile: entities.Dockerfile
+      dockerfile: ../entities/src/main/docker/Dockerfile.jvm
     environment:
       - PG_URL=${PG_URL}
       - PG_USER=${PG_USER}
