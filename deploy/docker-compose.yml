@@ -1,7 +1,8 @@
 services:
   entities:
-    build: .
-    dockerfile: Entities
+    build:
+      context: .
+      dockerfile: entities.Dockerfile
   environment:
     - PG_URL=${PG_URL}
     - PG_USER=${PG_USER}
