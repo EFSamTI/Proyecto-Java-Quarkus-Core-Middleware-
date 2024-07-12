@@ -10,7 +10,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
     implementation 'io.quarkus:quarkus-reactive-pg-client'
     implementation 'io.quarkus:quarkus-mongodb-panache'
-    implementation 'io.quarkus:quarkus-keycloak-authorization'
-    implementation 'io.quarkus:quarkus-oidc'
+    // implementation 'io.quarkus:quarkus-keycloak-authorization'
+    // implementation 'io.quarkus:quarkus-oidc'
     implementation 'io.quarkus:quarkus-container-image-docker'
 }
