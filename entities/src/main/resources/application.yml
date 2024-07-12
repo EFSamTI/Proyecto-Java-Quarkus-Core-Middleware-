@@ -23,6 +23,11 @@ quarkus:
   keycloak:
     policy-enforcer:
       enable: true
+      enforcement-mode: PERMISSIVE
+      # paths:
+      #   "all":
+      #     paths: /v1/api/
+      #     enforcement-mode: PERMISSIVE
   http:
     host: 0.0.0.0
     port: 8091

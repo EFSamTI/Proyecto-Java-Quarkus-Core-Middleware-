@@ -17,4 +17,5 @@ services:
       - CERT_FILE=${CERT_FILE}
       - CERT_KEY=${CERT_KEY}
     ports:
+      - "8091:8091"
       - "8491:8491"
