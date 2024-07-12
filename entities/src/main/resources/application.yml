@@ -16,6 +16,8 @@ quarkus:
     client-id: ${OIDC_CLIENT_ID}
     credentials:
       secret: ${OIDC_CLIENT_SECRET}
+    tls:
+      verification: none
   keycloak:
     policy-enforcer:
       enable: true
