@@ -17,7 +17,8 @@ quarkus:
     credentials:
       secret: ${OIDC_CLIENT_SECRET}
     tls:
-      verification: none
+      key-store-file: eurofish_com_ec.pfx
+      key-store-password: ${OIDC_KEY_STORE_PWD}
   keycloak:
     policy-enforcer:
       enable: true
