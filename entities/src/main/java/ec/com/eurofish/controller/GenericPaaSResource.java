@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ec.com.eurofish.model.BusinessOnePaaSRequest;
-import ec.com.eurofish.model.BusinessOnePaaSResponse;
+import ec.com.eurofish.model.GenericPaaSRequest;
+import ec.com.eurofish.model.GenericPaaSResponse;
 import ec.com.eurofish.model.PGPaaSModel;
 import ec.com.eurofish.service.PGService;
 import io.quarkus.security.Authenticated;
@@ -22,21 +22,21 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 
-@Path("business-one")
+@Path("generic")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Authenticated
-public class BusinessOneResource {
+public class GenericPaaSResource {
 
     @Inject
     PGService pg;
 
     @POST
-    public Uni<Response> save(BusinessOnePaaSRequest request) {
+    public Uni<Response> save(GenericPaaSRequest request) {
         return request.persistOrUpdate()
                 .onItem().call(item -> {
-                    request.id = ((BusinessOnePaaSRequest) item).id;
-                    pg.saveBusinessOnePaaS(request);
+                    request.id = ((GenericPaaSRequest) item).id;
+                    pg.saveGenericPaaS(request);
                     return Uni.createFrom().item(item);
                 })
                 .onItem().transform(x -> Response.ok(x))
@@ -46,31 +46,32 @@ public class BusinessOneResource {
     @GET
     public Uni<Response> retrieveAll() {
         var pgList = pg.retrievePaaSList().collect().asList();
-        var mongoList = BusinessOnePaaSRequest.all();
+        var mongoList = GenericPaaSRequest.all();
 
         return Uni.combine().all().unis(pgList, mongoList)
                 .asTuple()
                 .onItem().transform(tuple -> {
                     List<PGPaaSModel> list = tuple.getItem1();
-                    List<BusinessOnePaaSRequest> mongo = tuple.getItem2();
+                    List<GenericPaaSRequest> mongo = tuple.getItem2();
 
                     var effective = mongo.stream().map(nonsql -> nonsql.id.toHexString()).toList();
                     var records = list.stream().filter(sql -> effective.contains(sql.getBsonid()))
                             .collect(Collectors.toList());
 
-                    List<BusinessOnePaaSResponse> result = new ArrayList<>();
+                    List<GenericPaaSResponse> result = new ArrayList<>();
                     for (PGPaaSModel pgItem : records) {
                         var mongoItem = mongo.stream()
                                 .filter(x -> x.id.toHexString().compareToIgnoreCase(pgItem.getBsonid()) == 0)
                                 .collect(Collectors.toList());
                         if (!mongoItem.isEmpty()) {
                             var paas = mongoItem.get(0);
-                            result.add(BusinessOnePaaSResponse.fromPG(pgItem)
+                            result.add(GenericPaaSResponse.fromPG(pgItem)
                                     .serial(paas.id.toHexString())
                                     .ip(paas.ip)
                                     .port(paas.port)
+                                    .ssl(paas.ssl)
                                     .rootPath(paas.rootPath)
-                                    .loginBody(paas.loginBody)
+                                    .header(paas.header)
                                     .timeout(paas.timeout)
                                     .build());
                         }
@@ -86,22 +87,23 @@ public class BusinessOneResource {
     @Path("{bson}")
     public Uni<Response> retrieveBySerial(@PathParam("bson") String bson) {
         var pgItem = pg.retrievePaaSByBson(bson);
-        var mongoItem = BusinessOnePaaSRequest.bySerial(bson);
+        var mongoItem = GenericPaaSRequest.bySerial(bson);
 
         return Multi.createBy()
                 .combining()
                 .streams(pgItem, mongoItem)
                 .asTuple()
                 .onItem().transform(tuple -> {
-                    BusinessOnePaaSRequest paas = tuple.getItem2();
+                    GenericPaaSRequest paas = tuple.getItem2();
 
                     return Uni.createFrom().item(
-                            BusinessOnePaaSResponse.fromPG(tuple.getItem1())
+                            GenericPaaSResponse.fromPG(tuple.getItem1())
                                     .serial(paas.id.toHexString())
                                     .ip(paas.ip)
                                     .port(paas.port)
+                                    .ssl(paas.ssl)
                                     .rootPath(paas.rootPath)
-                                    .loginBody(paas.loginBody)
+                                    .header(paas.header)
                                     .timeout(paas.timeout)
                                     .build());
                 })

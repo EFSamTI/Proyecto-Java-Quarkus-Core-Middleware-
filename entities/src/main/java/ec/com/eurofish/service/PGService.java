@@ -3,7 +3,7 @@ package ec.com.eurofish.service;
 import java.util.List;
 
 import ec.com.eurofish.model.BusinessOnePaaSRequest;
-// import ec.com.eurofish.model.GenericPaaSRequest;
+import ec.com.eurofish.model.GenericPaaSRequest;
 import ec.com.eurofish.model.PGPaaSModel;
 import io.quarkus.reactive.datasource.ReactiveDataSource;
 import io.smallrye.mutiny.Multi;
@@ -41,11 +41,11 @@ public class PGService {
                 .onItem().transform(PGPaaSModel::from);
     }
 
-    // public Uni<Void> saveGenericPaaS(GenericPaaSRequest request) {
-    // return pg.preparedQuery("select save_paas_record($1)")
-    // .execute(request.getPGJsonBody())
-    // .replaceWithVoid();
-    // }
+    public Uni<Void> saveGenericPaaS(GenericPaaSRequest request) {
+        return pg.preparedQuery("select save_paas_record($1)")
+                .execute(request.getPGJsonBody())
+                .replaceWithVoid();
+    }
 
     public Uni<Void> saveBusinessOnePaaS(BusinessOnePaaSRequest request) {
         return pg.preparedQuery("select save_paas_record($1)")

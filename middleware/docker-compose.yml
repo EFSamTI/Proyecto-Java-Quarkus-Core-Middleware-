@@ -9,5 +9,8 @@ services:
       - PG_PWD=${PG_PWD}
       - MONGO_URL=${MONGO_URL}
       - MONGO_DB=${MONGO_DB}
+      - OIDC_SERVER_URL=${OIDC_SERVER_URL}
+      - OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
+      - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}
     ports:
       - "8091:8091"

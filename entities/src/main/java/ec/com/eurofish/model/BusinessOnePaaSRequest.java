@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Tuple;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +83,11 @@ public class BusinessOnePaaSRequest extends ReactivePanacheMongoEntity {
     public static Uni<List<BusinessOnePaaSRequest>> all() {
         return BusinessOnePaaSRequest.streamAll()
                 .onItem().transform(x -> (BusinessOnePaaSRequest) x).collect().asList();
+    }
+
+    public static Multi<BusinessOnePaaSRequest> bySerial(String bson) {
+        return BusinessOnePaaSRequest.findById(new ObjectId(bson))
+                .onItem().transform(x -> (BusinessOnePaaSRequest) x).toMulti();
     }
 
 }
