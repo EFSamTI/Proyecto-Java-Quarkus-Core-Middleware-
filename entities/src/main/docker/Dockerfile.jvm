@@ -9,7 +9,11 @@ COPY --chown=185 build/quarkus-app/*.jar /deployments/
 COPY --chown=185 build/quarkus-app/app/ /deployments/app/
 COPY --chown=185 build/quarkus-app/quarkus/ /deployments/quarkus/
 
-EXPOSE 8002
+COPY --chown=185 src/main/resources/certs/eurofish_com_ec.pfx /deployments/certs/
+COPY --chown=185 src/main/resources/certs/eurofish_com_ec.pem /deployments/certs/
+COPY --chown=185 src/main/resources/certs/eurofish.key /deployments/certs/
+
+EXPOSE 8491
 USER 185
 ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"

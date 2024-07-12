@@ -11,14 +11,15 @@ quarkus:
   mongodb:
     connection-string: ${MONGO_URL}
     database: ${MONGO_DB}
-  oidc:
+  # oidc:
+  oidc-client:
     auth-server-url: ${OIDC_SERVER_URL}
     client-id: ${OIDC_CLIENT_ID}
     credentials:
       secret: ${OIDC_CLIENT_SECRET}
     tls:
-      key-store-file: eurofish_com_ec.pfx
-      key-store-password: ${OIDC_KEY_STORE_PWD}
+      trust-store-file: ${OIDC_TRUST_STORE_FILE}
+      trust-store-password: ${OIDC_KEY_STORE_PWD}
   keycloak:
     policy-enforcer:
       enable: true
@@ -30,3 +31,9 @@ quarkus:
       ~: true
       origins: /.*/
       headers: origin,accept,authorization,content-type,x-requested-with
+    insecure-requests: disabled
+    ssl-port: 8491
+    ssl:
+      certificate:
+        files: ${CERT_FILE}
+        key-files: ${CERT_KEY}
