@@ -18,8 +18,9 @@ quarkus:
     credentials:
       secret: ${OIDC_CLIENT_SECRET}
     tls:
-      trust-store-file: ${OIDC_TRUST_STORE_FILE}
-      trust-store-password: ${OIDC_KEY_STORE_PWD}
+      verification: none
+      # trust-store-file: ${OIDC_TRUST_STORE_FILE}
+      # trust-store-password: ${OIDC_KEY_STORE_PWD}
   # keycloak:
   #   policy-enforcer:
   #     enable: true
