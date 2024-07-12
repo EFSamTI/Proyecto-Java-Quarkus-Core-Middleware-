@@ -20,10 +20,10 @@ quarkus:
     tls:
       trust-store-file: ${OIDC_TRUST_STORE_FILE}
       trust-store-password: ${OIDC_KEY_STORE_PWD}
-  keycloak:
-    policy-enforcer:
-      enable: true
-      enforcement-mode: PERMISSIVE
+  # keycloak:
+  #   policy-enforcer:
+  #     enable: true
+  #     enforcement-mode: PERMISSIVE
       # paths:
       #   "all":
       #     paths: /v1/api/
