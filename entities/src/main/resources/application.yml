@@ -21,6 +21,7 @@ quarkus:
       verification: none
       # trust-store-file: ${OIDC_TRUST_STORE_FILE}
       # trust-store-password: ${OIDC_KEY_STORE_PWD}
+    connection-delay: 20S
   # keycloak:
   #   policy-enforcer:
   #     enable: true
