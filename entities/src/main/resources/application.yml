@@ -11,8 +11,8 @@ quarkus:
   mongodb:
     connection-string: ${MONGO_URL}
     database: ${MONGO_DB}
-  # oidc:
-  oidc-client:
+  oidc:
+  # oidc-client:
     auth-server-url: ${OIDC_SERVER_URL}
     client-id: ${OIDC_CLIENT_ID}
     credentials:
@@ -24,14 +24,19 @@ quarkus:
   #   policy-enforcer:
   #     enable: true
   #     enforcement-mode: PERMISSIVE
-      # paths:
-      #   "all":
-      #     paths: /v1/api/
-      #     enforcement-mode: PERMISSIVE
+  #     paths:
+  #       "all":
+  #         paths: /v1/api/
+  #         enforcement-mode: PERMISSIVE
   http:
     host: 0.0.0.0
     port: 8091
     root-path: /v1/api
+    auth:
+      permission:
+        authenticated:
+          paths: /*
+          policy: authenticated
     cors:
       ~: true
       origins: /.*/
