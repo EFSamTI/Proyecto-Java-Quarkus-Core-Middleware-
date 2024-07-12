@@ -22,6 +22,8 @@ quarkus:
       # trust-store-file: ${OIDC_TRUST_STORE_FILE}
       # trust-store-password: ${OIDC_KEY_STORE_PWD}
     connection-delay: 20S
+    token-path: /protocol/openid-connect/token
+    introspection-path: /protocol/openid-connect/token/introspect
   # keycloak:
   #   policy-enforcer:
   #     enable: true
