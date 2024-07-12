@@ -1,5 +1,5 @@
 services:
-  entities:
+  core:
     build:
       context: ../../middleware
       dockerfile: src/main/docker/Dockerfile.jvm
