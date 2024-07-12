@@ -41,16 +41,16 @@ public class PGService {
                 .onItem().transform(PGPaaSModel::from);
     }
 
-    public Uni<Void> saveGenericPaaS(GenericPaaSRequest request) {
+    public Uni<GenericPaaSRequest> saveGenericPaaS(GenericPaaSRequest request) {
         return pg.preparedQuery("select save_paas_record($1)")
                 .execute(request.getPGJsonBody())
-                .replaceWithVoid();
+                .replaceWith(request);
     }
 
-    public Uni<Void> saveBusinessOnePaaS(BusinessOnePaaSRequest request) {
+    public Uni<BusinessOnePaaSRequest> saveBusinessOnePaaS(BusinessOnePaaSRequest request) {
         return pg.preparedQuery("select save_paas_record($1)")
                 .execute(request.getPGJsonBody())
-                .replaceWithVoid();
+                .replaceWith(request);
     }
 
 }

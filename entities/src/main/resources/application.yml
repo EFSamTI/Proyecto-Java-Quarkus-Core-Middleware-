@@ -45,9 +45,12 @@ quarkus:
       ~: true
       origins: /.*/
       headers: origin,accept,authorization,content-type,x-requested-with
-    insecure-requests: disabled
-    ssl-port: 8491
-    ssl:
-      certificate:
-        files: ${CERT_FILE}
-        key-files: ${CERT_KEY}
+"%prod":
+  quarkus:
+    http:
+      insecure-requests: DISABLED
+      ssl-port: 8491
+      ssl:
+        certificate:
+          files: ${CERT_FILE}
+          key-files: ${CERT_KEY}

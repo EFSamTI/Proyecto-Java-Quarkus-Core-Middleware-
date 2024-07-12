@@ -2,11 +2,13 @@ package ec.com.eurofish.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import ec.com.eurofish.model.BusinessOnePaaSRequest;
 import ec.com.eurofish.model.BusinessOnePaaSResponse;
 import ec.com.eurofish.model.PGPaaSModel;
+import ec.com.eurofish.service.BusinessPaaSService;
 import ec.com.eurofish.service.PGService;
 import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Multi;
@@ -19,8 +21,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.ResponseBuilder;
 
 @Path("business-one")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -32,27 +32,25 @@ public class BusinessOneResource {
     PGService pg;
 
     @POST
-    public Uni<Response> save(BusinessOnePaaSRequest request) {
-        return request.persistOrUpdate()
-                .onItem().call(item -> {
-                    request.id = ((BusinessOnePaaSRequest) item).id;
-                    pg.saveBusinessOnePaaS(request);
-                    return Uni.createFrom().item(item);
+    public Uni<Map<String, String>> save(BusinessOnePaaSRequest request) {
+        return BusinessPaaSService.save(request)
+                .onItem().call(bson -> {
+                    request.setId(bson);
+                    return pg.saveBusinessOnePaaS(request);
                 })
-                .onItem().transform(x -> Response.ok(x))
-                .onItem().transform(ResponseBuilder::build);
+                .onItem().transform(x -> Map.of("id", x));
     }
 
     @GET
-    public Uni<Response> retrieveAll() {
+    public Uni<List<BusinessOnePaaSResponse>> retrieveAll() {
         var pgList = pg.retrievePaaSList().collect().asList();
-        var mongoList = BusinessOnePaaSRequest.all();
+        var mongoList = BusinessPaaSService.all();
 
         return Uni.combine().all().unis(pgList, mongoList)
                 .asTuple()
                 .onItem().transform(tuple -> {
                     List<PGPaaSModel> list = tuple.getItem1();
-                    List<BusinessOnePaaSRequest> mongo = tuple.getItem2();
+                    List<BusinessPaaSService> mongo = tuple.getItem2();
 
                     var effective = mongo.stream().map(nonsql -> nonsql.id.toHexString()).toList();
                     var records = list.stream().filter(sql -> effective.contains(sql.getBsonid()))
@@ -76,36 +74,31 @@ public class BusinessOneResource {
                         }
                     }
 
-                    return Uni.createFrom().item(result);
-                })
-                .onItem().transform(x -> Response.ok(x))
-                .onItem().transform(ResponseBuilder::build);
+                    return result;
+                });
     }
 
     @GET
     @Path("{bson}")
-    public Uni<Response> retrieveBySerial(@PathParam("bson") String bson) {
+    public Uni<BusinessOnePaaSResponse> retrieveBySerial(@PathParam("bson") String bson) {
         var pgItem = pg.retrievePaaSByBson(bson);
-        var mongoItem = BusinessOnePaaSRequest.bySerial(bson);
+        var mongoItem = BusinessPaaSService.bySerial(bson);
 
         return Multi.createBy()
                 .combining()
                 .streams(pgItem, mongoItem)
                 .asTuple()
                 .onItem().transform(tuple -> {
-                    BusinessOnePaaSRequest paas = tuple.getItem2();
+                    BusinessPaaSService paas = tuple.getItem2();
 
-                    return Uni.createFrom().item(
-                            BusinessOnePaaSResponse.fromPG(tuple.getItem1())
-                                    .serial(paas.id.toHexString())
-                                    .ip(paas.ip)
-                                    .port(paas.port)
-                                    .rootPath(paas.rootPath)
-                                    .loginBody(paas.loginBody)
-                                    .timeout(paas.timeout)
-                                    .build());
-                })
-                .onItem().transform(x -> Response.ok(x))
-                .onItem().transform(ResponseBuilder::build).toUni();
+                    return BusinessOnePaaSResponse.fromPG(tuple.getItem1())
+                            .serial(paas.id.toHexString())
+                            .ip(paas.ip)
+                            .port(paas.port)
+                            .rootPath(paas.rootPath)
+                            .loginBody(paas.loginBody)
+                            .timeout(paas.timeout)
+                            .build();
+                }).toUni();
     }
 }

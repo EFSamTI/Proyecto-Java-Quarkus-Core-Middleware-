@@ -1,41 +1,36 @@
 package ec.com.eurofish.model;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.bson.codecs.pojo.annotations.BsonIgnore;
-import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.quarkus.mongodb.panache.common.MongoEntity;
-import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Tuple;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@MongoEntity(collection = "Generic")
-public class GenericPaaSRequest extends ReactivePanacheMongoEntity {
-    @BsonIgnore
-    public Integer pgId;
-    @BsonIgnore
-    public String description;
-    public String ip;
-    public Integer port;
-    public boolean ssl;
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class GenericPaaSRequest {
+    String id;
+    @JsonProperty("pg_id")
+    Integer pgId;
+    String description;
+    String ip;
+    Integer port;
+    boolean ssl;
     @JsonProperty("root_path")
-    public String rootPath;
+    String rootPath;
     @JsonProperty("header")
-    public Map<String, String> header;
-    public Integer timeout;
+    Map<String, String> header;
+    Integer timeout;
 
-    @BsonIgnore
     @JsonIgnore
     public Tuple getPGJsonBody() {
         String json = "{}";
@@ -43,7 +38,7 @@ public class GenericPaaSRequest extends ReactivePanacheMongoEntity {
             Map<String, Object> map = new HashMap<>();
             map.put("id", pgId);
             map.put("description", description);
-            map.put("bsonid", id.toHexString());
+            map.put("bsonid", id);
             ObjectMapper mapper = new ObjectMapper();
             json = mapper.writeValueAsString(map);
             log.info(json);
@@ -53,13 +48,4 @@ public class GenericPaaSRequest extends ReactivePanacheMongoEntity {
         return Tuple.of(json);
     }
 
-    public static Uni<List<GenericPaaSRequest>> all() {
-        return GenericPaaSRequest.streamAll()
-                .onItem().transform(x -> (GenericPaaSRequest) x).collect().asList();
-    }
-
-    public static Multi<GenericPaaSRequest> bySerial(String bson) {
-        return GenericPaaSRequest.findById(new ObjectId(bson))
-                .onItem().transform(x -> (GenericPaaSRequest) x).toMulti();
-    }
 }
