@@ -10,7 +10,7 @@ import ec.com.eurofish.model.GenericPaaSResponse;
 import ec.com.eurofish.model.PGPaaSModel;
 import ec.com.eurofish.service.GenericPaaSService;
 import ec.com.eurofish.service.PGService;
-import io.quarkus.security.Authenticated;
+// import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.MediaType;
 @Path("generic")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Authenticated
+// @Authenticated
 public class GenericPaaSResource {
 
     @Inject

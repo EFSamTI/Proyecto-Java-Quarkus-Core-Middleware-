@@ -10,7 +10,7 @@ import ec.com.eurofish.model.BusinessOnePaaSResponse;
 import ec.com.eurofish.model.PGPaaSModel;
 import ec.com.eurofish.service.BusinessPaaSService;
 import ec.com.eurofish.service.PGService;
-import io.quarkus.security.Authenticated;
+// import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.MediaType;
 @Path("business-one")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Authenticated
+// @Authenticated
 public class BusinessOneResource {
 
     @Inject
