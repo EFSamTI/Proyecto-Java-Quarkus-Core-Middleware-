@@ -57,6 +57,15 @@ mp:
         password: ${MQTT_PASSWD}
         auto-generated-client-id: true
 
+micrometer:
+  export:
+    json:
+      enabled: true
+      path: /metrics/json
+    prometheus:
+      enabled: true
+      path: /metrics/prometheus
+
 "%prod":
   quarkus:
     http:

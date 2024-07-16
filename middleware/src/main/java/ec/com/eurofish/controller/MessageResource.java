@@ -1,5 +1,7 @@
 package ec.com.eurofish.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import ec.com.eurofish.model.BusinessOnePaaSRequest;
 import ec.com.eurofish.model.GenericPaaSRequest;
 import ec.com.eurofish.model.MessageRequest;
@@ -39,12 +41,19 @@ public class MessageResource {
     @POST
     @Path("generic")
     public Uni<Response> genericMessage(MessageRequest request) {
-        GenericPaaSService paas = GenericPaaSService.bySerial(request.getDestination());
+        CompletableFuture<GenericPaaSService> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> GenericPaaSService
+                .bySerial(request.getDestination())
+                .subscribe()
+                .with(item -> future.complete(item)));
+
         return Uni.createFrom()
-                .item(generic.request(request, GenericPaaSRequest.fromMongoItem(paas)))
+                .completionStage(future)
+                // .ifNoItem().after(Duration.ofMillis(1000)).fail()
+                .onItem().transform(paas -> generic.request(request, GenericPaaSRequest.fromMongoItem(paas)))
                 .onItem().transform(body -> {
                     registry
-                            .counter("generic.execution", paas.id.toHexString(), "succeeded")
+                            .counter("message", "generic", "succeeded")
                             .increment();
                     return Response.ok(body);
                 })
@@ -54,12 +63,17 @@ public class MessageResource {
     @POST
     @Path("business-one")
     public Uni<Response> businessOneMessage(MessageRequest request) {
-        BusinessPaaSService paas = BusinessPaaSService.bySerial(request.getDestination());
+        CompletableFuture<BusinessPaaSService> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> BusinessPaaSService
+                .bySerial(request.getDestination())
+                .subscribe()
+                .with(item -> future.complete(item)));
         return Uni.createFrom()
-                .item(business.request(request, BusinessOnePaaSRequest.fromMongoItem(paas)))
+                .completionStage(future)
+                .onItem().transform(paas -> business.request(request, BusinessOnePaaSRequest.fromMongoItem(paas)))
                 .onItem().transform(body -> {
                     registry
-                            .counter("business.one.execution", paas.id.toHexString(), "succeeded")
+                            .counter("message", "business-one", "succeeded")
                             .increment();
                     return Response.ok(body);
                 })

@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.CompletableFuture;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -94,8 +95,13 @@ public class BusinessService {
     }
 
     private BusinessOnePaaSRequest retrievePaaS(String bson) {
-        BusinessPaaSService mongo = BusinessPaaSService.bySerial(bson);
-        return BusinessOnePaaSRequest.fromMongoItem(mongo);// retrievePaas(paas.getId());
+        CompletableFuture<BusinessPaaSService> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> BusinessPaaSService
+                .bySerial(bson)
+                .subscribe()
+                .with(item -> future.complete(item)));
+
+        return BusinessOnePaaSRequest.fromMongoItem(future.join());
     }
 
     public String request(MessageRequest msgRequest, BusinessOnePaaSRequest paas) {

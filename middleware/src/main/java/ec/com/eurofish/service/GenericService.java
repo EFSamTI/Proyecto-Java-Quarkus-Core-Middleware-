@@ -32,6 +32,7 @@ public class GenericService {
                 .build();
         String body = null;
         try {
+            // log.info(paas.toString());
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, BodyHandlers.ofString());
             body = httpResponse.body();
         } catch (IOException | InterruptedException e) {
