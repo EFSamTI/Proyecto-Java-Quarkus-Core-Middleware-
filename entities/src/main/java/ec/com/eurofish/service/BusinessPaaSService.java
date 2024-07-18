@@ -22,14 +22,16 @@ public class BusinessPaaSService extends ReactivePanacheMongoEntity {
 
     public static Uni<String> save(BusinessOnePaaSRequest request) {
         BusinessPaaSService entity = new BusinessPaaSService();
-        if (request.getId() != null || !request.getId().isBlank())
+        if (request.getId() != null && !request.getId().isBlank())
             entity.id = new ObjectId(request.getId());
         entity.ip = request.getIp();
         entity.port = request.getPort();
         entity.rootPath = request.getRootPath();
         entity.loginBody = request.getLoginBody();
         entity.timeout = request.getTimeout();
-        return entity.persistOrUpdate().replaceWith(entity.id.toHexString());
+        return entity.persistOrUpdate()
+                .onItem().transform(item -> ((BusinessPaaSService) item).id.toHexString());
+        // .replaceWith(entity.id.toHexString());
     }
 
     public static Uni<BusinessPaaSService> updateCookie(String id, String cookie) {

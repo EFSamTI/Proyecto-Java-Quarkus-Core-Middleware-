@@ -16,13 +16,13 @@ public class GenericPaaSService extends ReactivePanacheMongoEntity {
     public String ip;
     public Integer port;
     public boolean ssl;
-    public String rootPath; 
+    public String rootPath;
     public Map<String, String> header;
     public Integer timeout;
 
     public static Uni<String> save(GenericPaaSRequest request) {
         GenericPaaSService entity = new GenericPaaSService();
-        if (request.getId() != null || !request.getId().isBlank())
+        if (request.getId() != null && !request.getId().isBlank())
             entity.id = new ObjectId(request.getId());
         entity.ip = request.getIp();
         entity.port = request.getPort();
@@ -30,7 +30,9 @@ public class GenericPaaSService extends ReactivePanacheMongoEntity {
         entity.rootPath = request.getRootPath();
         entity.header = request.getHeader();
         entity.timeout = request.getTimeout();
-        return entity.persistOrUpdate().replaceWith(entity.id.toHexString());
+        return entity.persistOrUpdate()
+                .onItem().transform(item -> ((GenericPaaSService) item).id.toHexString());
+        // .replaceWith(entity.id.toHexString());
     }
 
     public static Uni<List<GenericPaaSService>> all() {
