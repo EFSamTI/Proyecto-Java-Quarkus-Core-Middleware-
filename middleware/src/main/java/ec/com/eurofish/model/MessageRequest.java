@@ -23,6 +23,7 @@ public class MessageRequest {
     String verb;
     String path;
     Map<String, Object> body = new HashMap<>();
+    Feedback feedback;
 
     @BsonIgnore
     public String getJsonBody() {
