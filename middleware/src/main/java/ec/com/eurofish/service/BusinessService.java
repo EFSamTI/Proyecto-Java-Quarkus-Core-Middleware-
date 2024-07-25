@@ -19,15 +19,16 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedTrustManager;
 
+import org.jboss.logging.Logger;
+
 import ec.com.eurofish.model.BusinessOnePaaSRequest;
 import ec.com.eurofish.model.MessageRequest;
 import ec.com.eurofish.util.BusinessOneCookieHandler;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
-@Slf4j
 public class BusinessService {
+    static final Logger log = Logger.getLogger(BusinessService.class);
 
     private SSLContext context() throws NoSuchAlgorithmException, KeyManagementException {
         var trustManager = new X509ExtendedTrustManager() {

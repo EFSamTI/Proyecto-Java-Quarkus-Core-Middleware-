@@ -3,6 +3,8 @@ package ec.com.eurofish.model;
 import java.net.URI;
 import java.util.Map;
 
+import org.jboss.logging.Logger;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ec.com.eurofish.service.GenericPaaSService;
@@ -12,15 +14,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GenericPaaSRequest {
+    static final Logger log = Logger.getLogger(GenericPaaSRequest.class);
+
     String id;
     @JsonProperty("pg_id")
     Integer pgId;

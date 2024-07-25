@@ -32,6 +32,12 @@ quarkus:
   #       "all":
   #         paths: /v1/api/
   #         enforcement-mode: PERMISSIVE
+  log:
+    handler:
+      gelf:
+        enabled: true
+        host: ${ELK_HOST}
+        port: ${ELK_PORT}
   http:
     host: 0.0.0.0
     port: 8091

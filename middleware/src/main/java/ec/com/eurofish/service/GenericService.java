@@ -6,14 +6,15 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
+import org.jboss.logging.Logger;
+
 import ec.com.eurofish.model.GenericPaaSRequest;
 import ec.com.eurofish.model.MessageRequest;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
-@Slf4j
 public class GenericService {
+    static final Logger log = Logger.getLogger(GenericService.class);
 
     public String request(MessageRequest message, GenericPaaSRequest paas) {
         var builder = HttpRequest.newBuilder()

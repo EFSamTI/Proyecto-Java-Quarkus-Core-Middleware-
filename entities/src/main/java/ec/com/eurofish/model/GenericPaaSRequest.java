@@ -3,6 +3,8 @@ package ec.com.eurofish.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jboss.logging.Logger;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,12 +14,12 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GenericPaaSRequest {
+    static final Logger log = Logger.getLogger(GenericPaaSRequest.class);
+
     String id;
     @JsonProperty("pg_id")
     Integer pgId;
