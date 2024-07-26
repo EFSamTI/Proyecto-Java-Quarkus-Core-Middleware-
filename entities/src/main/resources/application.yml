@@ -4,10 +4,10 @@ quarkus:
   datasource:
     "entities":
       db-kind: postgresql
-      username: ${PG_USER}
-      password: ${PG_PWD}
+      username: ${MW_PG_USERNAME}
+      password: ${MW_PG_PASSWORD}
       reactive:
-        url: ${PG_URL}
+        url: ${MW_PG_URL}
   mongodb:
     connection-string: ${MONGO_URL}
     database: ${MONGO_DB}
