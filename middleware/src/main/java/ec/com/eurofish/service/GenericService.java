@@ -22,7 +22,7 @@ public class GenericService {
                 .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
                 .method(message.getVerb(), HttpRequest.BodyPublishers.ofString(message.getJsonBody()));
         try {
-            paas.getBody().forEach((k, v) -> builder.header(k, "%s".formatted(v)));
+            paas.getBody().getMap().forEach((k, v) -> builder.header(k, "%s".formatted(v)));
         } catch (IllegalArgumentException e) {
             log.error("HTTP HEADER ERROR", e);
         }

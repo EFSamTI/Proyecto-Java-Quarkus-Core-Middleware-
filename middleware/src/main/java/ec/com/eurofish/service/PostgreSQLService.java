@@ -1,6 +1,7 @@
 package ec.com.eurofish.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import ec.com.eurofish.model.PaaSModel;
 import io.quarkus.reactive.datasource.ReactiveDataSource;
@@ -12,7 +13,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class PGService {
+public class PostgreSQLService {
 
     @Inject
     @ReactiveDataSource("entities")
@@ -39,7 +40,7 @@ public class PGService {
                 .onItem().transform(PaaSModel::from);
     }
 
-    public Uni<String> updateCookie(String webId, String cookie) {
+    public Uni<String> updateCookie(UUID webId, String cookie) {
         return pg.preparedQuery("select update_cookie($1, $2)")
                 .execute(Tuple.of(webId, cookie))
                 .replaceWith(cookie);

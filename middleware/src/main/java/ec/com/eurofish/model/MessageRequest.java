@@ -3,7 +3,6 @@ package ec.com.eurofish.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +25,7 @@ public class MessageRequest {
     Map<String, Object> body = new HashMap<>();
     Feedback feedback;
 
-    @BsonIgnore
+    // @BsonIgnore
     public String getJsonBody() {
         String json = "{}";
         if (body != null)

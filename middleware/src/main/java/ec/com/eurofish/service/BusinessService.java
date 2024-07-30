@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import javax.net.ssl.SSLContext;
@@ -21,8 +22,8 @@ import javax.net.ssl.X509ExtendedTrustManager;
 
 import org.jboss.logging.Logger;
 
-import ec.com.eurofish.model.BusinessOneModel;
 import ec.com.eurofish.model.MessageRequest;
+import ec.com.eurofish.model.PaaSModel;
 import ec.com.eurofish.util.BusinessOneCookieHandler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,7 +33,7 @@ public class BusinessService {
     static final Logger log = Logger.getLogger(BusinessService.class);
 
     @Inject
-    PGService postgres;
+    PostgreSQLService postgres;
 
     private SSLContext context() throws NoSuchAlgorithmException, KeyManagementException {
         var trustManager = new X509ExtendedTrustManager() {
@@ -72,11 +73,11 @@ public class BusinessService {
         return sslContext;
     }
 
-    private void login(BusinessOneModel paas) {
+    private void login(PaaSModel paas) {
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(paas.createLoginURI())
+                .uri(paas.createBusinessOneLoginURI())
                 .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
-                .POST(HttpRequest.BodyPublishers.ofString(paas.getLoginJsonBody()))
+                .POST(HttpRequest.BodyPublishers.ofString(paas.getBusinessOneLoginJsonBody()))
                 .build();
         HttpClient httpClient = HttpClient.newBuilder().build();
         try {
@@ -99,14 +100,14 @@ public class BusinessService {
         }
     }
 
-    public String request(MessageRequest msgRequest, BusinessOneModel paas) {
+    public String request(MessageRequest msgRequest, PaaSModel paas) {
         if (paas.getCookie() == null) {
             login(paas);
             //
-            paas = retrieve(paas.getWebId());
+            paas = retrieve(paas.getWebId().toString());
         }
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(paas.createURI(msgRequest.getPath()))
+                .uri(paas.createBusinessOneURI(msgRequest.getPath()))
                 .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
                 .method(msgRequest.getVerb(), HttpRequest.BodyPublishers.ofString(msgRequest.getJsonBody()))
                 .build();
@@ -126,7 +127,7 @@ public class BusinessService {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, BodyHandlers.ofString());
             if (httpResponse != null && httpResponse.statusCode() == 401) {
                 login(paas);
-                return request(msgRequest, retrieve(paas.getWebId()));
+                return request(msgRequest, retrieve(paas.getWebId().toString()));
             }
             body = httpResponse.body();
         } catch (IOException | InterruptedException e) {
@@ -135,16 +136,16 @@ public class BusinessService {
         return body;
     }
 
-    private BusinessOneModel retrieve(String webId) {
-        CompletableFuture<BusinessOneModel> future = new CompletableFuture<>();
+    private PaaSModel retrieve(String webId) {
+        CompletableFuture<PaaSModel> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> postgres
                 .retrievePaaSByWebId(webId)
                 .subscribe()
-                .with(item -> future.complete((BusinessOneModel) item)));
+                .with(item -> future.complete(item)));
         return future.join();
     }
 
-    private String update(String webId, String cookie) {
+    private String update(UUID webId, String cookie) {
         CompletableFuture<String> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> postgres
                 .updateCookie(webId, cookie)

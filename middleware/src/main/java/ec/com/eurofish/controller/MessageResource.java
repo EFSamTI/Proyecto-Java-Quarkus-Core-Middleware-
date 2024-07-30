@@ -1,13 +1,14 @@
 package ec.com.eurofish.controller;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
-import ec.com.eurofish.model.BusinessOneModel;
 import ec.com.eurofish.model.GenericModel;
 import ec.com.eurofish.model.MessageRequest;
+import ec.com.eurofish.model.PaaSModel;
 import ec.com.eurofish.service.BusinessService;
 import ec.com.eurofish.service.GenericService;
-import ec.com.eurofish.service.PGService;
+import ec.com.eurofish.service.PostgreSQLService;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
@@ -34,7 +35,7 @@ public class MessageResource {
         BusinessService business;
 
         @Inject
-        PGService postgres;
+        PostgreSQLService postgres;
 
         private CompletableFuture<GenericModel> findGeneric(String webId) {
                 CompletableFuture<GenericModel> future = new CompletableFuture<>();
@@ -45,12 +46,12 @@ public class MessageResource {
                 return future;
         }
 
-        private CompletableFuture<BusinessOneModel> findBusinessOne(String webId) {
-                CompletableFuture<BusinessOneModel> future = new CompletableFuture<>();
+        private CompletableFuture<PaaSModel> findBusinessOne(String webId) {
+                CompletableFuture<PaaSModel> future = new CompletableFuture<>();
                 CompletableFuture.runAsync(() -> postgres
                                 .retrievePaaSByWebId(webId)
                                 .subscribe()
-                                .with(item -> future.complete((BusinessOneModel) item)));
+                                .with(item -> future.complete((PaaSModel) item)));
                 return future;
         }
 
@@ -76,6 +77,7 @@ public class MessageResource {
         public Uni<Response> businessOneMessage(MessageRequest request) {
                 return Uni.createFrom()
                                 .completionStage(findBusinessOne(request.getDestination()))
+                                .ifNoItem().after(Duration.ofMillis(1000)).fail()
                                 // .item(business.bySerial(request.getDestination()))
                                 .onItem()
                                 .transform(paas -> business.request(request, paas))

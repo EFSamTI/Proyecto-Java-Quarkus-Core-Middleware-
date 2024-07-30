@@ -1,11 +1,15 @@
 package ec.com.eurofish.model;
 
-import java.util.Map;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.Row;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +19,7 @@ public class PaaSModel {
     Integer id;
     String description;
     @JsonProperty("web_id")
-    String webId;
+    UUID webId;
     String ip;
     Integer port;
     boolean ssl;
@@ -24,7 +28,7 @@ public class PaaSModel {
     Integer timeout;
     @JsonProperty("body_as_header")
     boolean bodyAsHeader;
-    Map<String, Object> body;
+    JsonObject body;
     @JsonProperty("business_one")
     boolean businessOne;
     String cookie;
@@ -33,14 +37,14 @@ public class PaaSModel {
         return PaaSModel.builder()
                 .id(row.getInteger("id"))
                 .description(row.getString("description"))
-                .webId(row.getString("web_id"))
+                .webId(row.getUUID("web_id"))
                 .ip(row.getString("ip"))
                 .port(row.getInteger("port"))
                 .ssl(row.getBoolean("ssl"))
                 .rootPath(row.getString("root_path"))
                 .timeout(row.getInteger("timeout"))
                 .bodyAsHeader(row.getBoolean("body_as_header"))
-                // .body(row.get)
+                .body(row.getJsonObject("body"))
                 .businessOne(row.getBoolean("business_one"))
                 .cookie(row.getString("cookie"))
                 .build();

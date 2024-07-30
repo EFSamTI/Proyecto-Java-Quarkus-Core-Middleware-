@@ -8,6 +8,7 @@ create table if not exists paas (
 	webid uuid not null unique,
 	ip character varying not null,
 	port integer not null default 80,
+	ssl bool not null default 'f',
 	root_path character varying,
 	timeout integer not null default 30000,
 	body_as_header bool default 'f',
