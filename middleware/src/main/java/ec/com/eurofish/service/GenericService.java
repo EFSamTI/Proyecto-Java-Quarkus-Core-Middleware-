@@ -8,17 +8,17 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 import org.jboss.logging.Logger;
 
-import ec.com.eurofish.model.GenericModel;
 import ec.com.eurofish.model.MessageRequest;
+import ec.com.eurofish.model.PaaSModel;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class GenericService {
     static final Logger log = Logger.getLogger(GenericService.class);
 
-    public String request(MessageRequest message, GenericModel paas) {
+    public String request(MessageRequest message, PaaSModel paas) {
         var builder = HttpRequest.newBuilder()
-                .uri(paas.createURI(message.getPath()))
+                .uri(paas.createGenericURI(message.getPath()))
                 .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
                 .method(message.getVerb(), HttpRequest.BodyPublishers.ofString(message.getJsonBody()));
         try {

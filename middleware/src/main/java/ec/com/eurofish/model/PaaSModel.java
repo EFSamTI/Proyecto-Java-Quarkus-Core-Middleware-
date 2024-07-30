@@ -7,8 +7,6 @@ import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.Row;
@@ -80,14 +78,31 @@ public class PaaSModel {
     @JsonIgnore
     public String getBusinessOneLoginJsonBody() {
         String json = "{}";
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            json = mapper.writeValueAsString(body);
-            log.info(json);
-        } catch (JsonProcessingException e) {
+        // try {
+        // ObjectMapper mapper = new ObjectMapper();
+        // json = mapper.writeValueAsString(body);
+        json = body.toString();
+        log.info(json);
+        // } catch (JsonProcessingException e) {
 
-        }
+        // }
         return json;
+    }
+
+    public URI createGenericURI(String path) {
+        StringBuilder builder = new StringBuilder("http");
+        if (ssl)
+            builder.append("s");
+        builder.append(String.format("://%s", ip));
+
+        if (port != 80)
+            builder.append(String.format(":%d", port));
+
+        builder.append(rootPath);
+        builder.append(path);
+        String uriString = builder.toString();
+        log.info(uriString);
+        return URI.create(uriString);
     }
 
 }

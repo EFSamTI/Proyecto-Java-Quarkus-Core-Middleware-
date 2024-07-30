@@ -3,7 +3,6 @@ package ec.com.eurofish.controller;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
-import ec.com.eurofish.model.GenericModel;
 import ec.com.eurofish.model.MessageRequest;
 import ec.com.eurofish.model.PaaSModel;
 import ec.com.eurofish.service.BusinessService;
@@ -37,21 +36,12 @@ public class MessageResource {
         @Inject
         PostgreSQLService postgres;
 
-        private CompletableFuture<GenericModel> findGeneric(String webId) {
-                CompletableFuture<GenericModel> future = new CompletableFuture<>();
-                CompletableFuture.runAsync(() -> postgres
-                                .retrievePaaSByWebId(webId)
-                                .subscribe()
-                                .with(item -> future.complete((GenericModel) item)));
-                return future;
-        }
-
-        private CompletableFuture<PaaSModel> findBusinessOne(String webId) {
+        private CompletableFuture<PaaSModel> find(String webId) {
                 CompletableFuture<PaaSModel> future = new CompletableFuture<>();
                 CompletableFuture.runAsync(() -> postgres
                                 .retrievePaaSByWebId(webId)
                                 .subscribe()
-                                .with(item -> future.complete((PaaSModel) item)));
+                                .with(item -> future.complete(item)));
                 return future;
         }
 
@@ -59,8 +49,8 @@ public class MessageResource {
         @Path("generic")
         public Uni<Response> genericMessage(MessageRequest request) {
                 return Uni.createFrom()
-                                .completionStage(findGeneric(request.getDestination()))
-                                // .ifNoItem().after(Duration.ofMillis(1000)).fail()
+                                .completionStage(find(request.getDestination()))
+                                .ifNoItem().after(Duration.ofMillis(1000)).fail()
                                 .onItem()
                                 .transform(paas -> generic.request(request, paas))
                                 .onItem().transform(body -> {
@@ -76,9 +66,8 @@ public class MessageResource {
         @Path("business-one")
         public Uni<Response> businessOneMessage(MessageRequest request) {
                 return Uni.createFrom()
-                                .completionStage(findBusinessOne(request.getDestination()))
+                                .completionStage(find(request.getDestination()))
                                 .ifNoItem().after(Duration.ofMillis(1000)).fail()
-                                // .item(business.bySerial(request.getDestination()))
                                 .onItem()
                                 .transform(paas -> business.request(request, paas))
                                 .onItem().transform(body -> {
