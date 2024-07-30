@@ -25,6 +25,7 @@ import org.jboss.logging.Logger;
 import ec.com.eurofish.model.MessageRequest;
 import ec.com.eurofish.model.PaaSModel;
 import ec.com.eurofish.util.BusinessOneCookieHandler;
+import io.vertx.ext.web.handler.HttpException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -73,7 +74,35 @@ public class BusinessService {
         return sslContext;
     }
 
-    private void login(PaaSModel paas) {
+    // private void login(PaaSModel paas) {
+    // HttpRequest httpRequest = HttpRequest.newBuilder()
+    // .uri(paas.createBusinessOneLoginURI())
+    // .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
+    // .POST(HttpRequest.BodyPublishers.ofString(paas.getBusinessOneLoginJsonBody()))
+    // .build();
+    // HttpClient httpClient = HttpClient.newBuilder().build();
+    // try {
+    // httpClient = HttpClient.newBuilder()
+    // .sslContext(context())
+    // .build();
+    // } catch (Exception e) {
+    // log.error("SSL CONTEXT ERROR", e);
+    // }
+
+    // StringBuilder builder = new StringBuilder();
+    // try {
+    // HttpResponse<String> httpResponse = httpClient.send(httpRequest,
+    // BodyHandlers.ofString());
+    // httpResponse.headers().allValues("set-cookie").forEach(v -> {
+    // builder.append(v.substring(0, v.indexOf(";") + 1));
+    // });
+    // log.info(update(paas.getWebId(), builder.toString()));
+    // } catch (IOException | InterruptedException e) {
+    // log.error("HTTP REQUEST ERROR", e);
+    // }
+    // }
+
+    public String login(PaaSModel paas) {
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(paas.createBusinessOneLoginURI())
                 .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
@@ -94,18 +123,20 @@ public class BusinessService {
             httpResponse.headers().allValues("set-cookie").forEach(v -> {
                 builder.append(v.substring(0, v.indexOf(";") + 1));
             });
-            log.info(update(paas.getWebId(), builder.toString()));
+            // log.info(update(paas.getWebId(), builder.toString()));
+            return builder.toString();
         } catch (IOException | InterruptedException e) {
             log.error("HTTP REQUEST ERROR", e);
         }
+        return null;
     }
 
-    public String request(MessageRequest msgRequest, PaaSModel paas) {
-        if (paas.getCookie() == null) {
-            login(paas);
-            //
-            paas = retrieve(paas.getWebId().toString());
-        }
+    public String request(MessageRequest msgRequest, PaaSModel paas) throws HttpException {
+        // if (paas.getCookie() == null) {
+        // login(paas);
+        // //
+        // paas = retrieve(paas.getWebId().toString());
+        // }
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(paas.createBusinessOneURI(msgRequest.getPath()))
                 .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
@@ -125,10 +156,11 @@ public class BusinessService {
         String body = null;
         try {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, BodyHandlers.ofString());
-            if (httpResponse != null && httpResponse.statusCode() == 401) {
-                login(paas);
-                return request(msgRequest, retrieve(paas.getWebId().toString()));
-            }
+            if (httpResponse != null && httpResponse.statusCode() == 401)
+                throw new HttpException(401);
+            // { login(paas);
+            // return request(msgRequest, retrieve(paas.getWebId().toString()));
+            // }
             body = httpResponse.body();
         } catch (IOException | InterruptedException e) {
             log.error("HTTP REQUEST ERROR", e);
@@ -136,7 +168,16 @@ public class BusinessService {
         return body;
     }
 
-    private PaaSModel retrieve(String webId) {
+    public CompletableFuture<PaaSModel> find(String webId) {
+        CompletableFuture<PaaSModel> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> postgres
+                .retrievePaaSByWebId(webId)
+                .subscribe()
+                .with(item -> future.complete(item)));
+        return future;
+    }
+
+    public PaaSModel retrieve(String webId) {
         CompletableFuture<PaaSModel> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> postgres
                 .retrievePaaSByWebId(webId)
@@ -145,8 +186,8 @@ public class BusinessService {
         return future.join();
     }
 
-    private String update(UUID webId, String cookie) {
-        CompletableFuture<String> future = new CompletableFuture<>();
+    public PaaSModel update(UUID webId, String cookie) {
+        CompletableFuture<PaaSModel> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> postgres
                 .updateCookie(webId, cookie)
                 .subscribe()

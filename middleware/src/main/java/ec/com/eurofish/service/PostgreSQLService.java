@@ -6,7 +6,6 @@ import java.util.UUID;
 import ec.com.eurofish.model.PaaSModel;
 import io.quarkus.reactive.datasource.ReactiveDataSource;
 import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Tuple;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -40,10 +39,11 @@ public class PostgreSQLService {
                 .onItem().transform(PaaSModel::from);
     }
 
-    public Uni<String> updateCookie(UUID webId, String cookie) {
-        return pg.preparedQuery("select update_cookie($1, $2)")
+    public Multi<PaaSModel> updateCookie(UUID webId, String cookie) {
+        return pg.preparedQuery("select * from update_cookie($1, $2)")
                 .execute(Tuple.of(webId, cookie))
-                .replaceWith(cookie);
+                .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem().transform(PaaSModel::from);
     }
 
 }

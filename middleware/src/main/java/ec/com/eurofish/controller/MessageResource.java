@@ -1,15 +1,13 @@
 package ec.com.eurofish.controller;
 
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
 
 import ec.com.eurofish.model.MessageRequest;
-import ec.com.eurofish.model.PaaSModel;
 import ec.com.eurofish.service.BusinessService;
 import ec.com.eurofish.service.GenericService;
-import ec.com.eurofish.service.PostgreSQLService;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.smallrye.mutiny.Uni;
+import io.vertx.ext.web.handler.HttpException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -33,23 +31,11 @@ public class MessageResource {
         @Inject
         BusinessService business;
 
-        @Inject
-        PostgreSQLService postgres;
-
-        private CompletableFuture<PaaSModel> find(String webId) {
-                CompletableFuture<PaaSModel> future = new CompletableFuture<>();
-                CompletableFuture.runAsync(() -> postgres
-                                .retrievePaaSByWebId(webId)
-                                .subscribe()
-                                .with(item -> future.complete(item)));
-                return future;
-        }
-
         @POST
         @Path("generic")
         public Uni<Response> genericMessage(MessageRequest request) {
                 return Uni.createFrom()
-                                .completionStage(find(request.getDestination()))
+                                .completionStage(business.find(request.getDestination()))
                                 .ifNoItem().after(Duration.ofMillis(1000)).fail()
                                 .onItem()
                                 .transform(paas -> generic.request(request, paas))
@@ -66,10 +52,27 @@ public class MessageResource {
         @Path("business-one")
         public Uni<Response> businessOneMessage(MessageRequest request) {
                 return Uni.createFrom()
-                                .completionStage(find(request.getDestination()))
-                                .ifNoItem().after(Duration.ofMillis(1000)).fail()
+                                .completionStage(business.find(request.getDestination()))
+                                .ifNoItem().after(Duration.ofMillis(1000))
+                                .failWith(() -> new HttpException(500,
+                                                "PaaS <%s> not found".formatted(request.getDestination())))
+                                .onItem().transform(paas -> {
+                                        if (paas.getCookie() == null) {
+                                                String cookie = business.login(paas);
+                                                paas = business.update(paas.getWebId(), cookie);
+                                        }
+                                        try {
+                                                business.request(request, paas);
+                                        } catch (HttpException httpEx) {
+                                                String cookie = business.login(paas);
+                                                paas = business.update(paas.getWebId(), cookie);
+                                        }
+                                        return paas;
+                                })
                                 .onItem()
                                 .transform(paas -> business.request(request, paas))
+                                // .ifNoItem().after(Duration.ofMillis(3000))
+                                // .failWith(() -> new HttpException(401))
                                 .onItem().transform(body -> {
                                         registry
                                                         .counter("message", "business-one", "succeeded")

@@ -53,10 +53,11 @@ public class PGService {
                 .replaceWith(request);
     }
 
-    public Uni<String> updateCookie(String webId, String cookie) {
-        return pg.preparedQuery("select update_cookie($1, $2)")
+    public Multi<PaaSModel> updateCookie(String webId, String cookie) {
+        return pg.preparedQuery("select * from update_cookie($1, $2)")
                 .execute(Tuple.of(webId, cookie))
-                .replaceWith(cookie);
+                .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem().transform(PaaSModel::from);
     }
 
 }
