@@ -61,18 +61,21 @@ public class MessageResource {
                                                 String cookie = business.login(paas);
                                                 paas = business.update(paas.getWebId(), cookie);
                                         }
-                                        try {
-                                                business.request(request, paas);
-                                        } catch (HttpException httpEx) {
-                                                String cookie = business.login(paas);
-                                                paas = business.update(paas.getWebId(), cookie);
-                                        }
                                         return paas;
                                 })
                                 .onItem()
-                                .transform(paas -> business.request(request, paas))
-                                // .ifNoItem().after(Duration.ofMillis(3000))
-                                // .failWith(() -> new HttpException(401))
+                                .transform(paas -> // business.request(request, paas)
+                                {
+                                        try {
+                                                return business.request(request, paas);
+                                        } catch (HttpException httpEx) {
+                                                String cookie = business.login(paas);
+                                                business.update(paas.getWebId(), cookie);
+                                                return null;
+                                        }
+                                })
+                                .ifNoItem().after(Duration.ofMillis(3000))
+                                .failWith(() -> new HttpException(401, "SAP B1 Service Layer Error"))
                                 .onItem().transform(body -> {
                                         registry
                                                         .counter("message", "business-one", "succeeded")
