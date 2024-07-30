@@ -26,6 +26,7 @@ public class GenericPaaSRequest {
     public String description;
     public String ip;
     public Integer port;
+    public boolean ssl;
     @JsonProperty("root_path")
     public String rootPath;
     @JsonProperty("body_as_header")
@@ -44,6 +45,7 @@ public class GenericPaaSRequest {
             map.put("web_id", webId);
             map.put("ip", ip);
             map.put("port", port);
+            map.put("ssl", ssl);
             map.put("root_path", rootPath);
             map.put("timeout", timeout);
             map.put("business_one", true);

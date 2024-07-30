@@ -44,6 +44,7 @@ public class BusinessOnePaaSRequest {
             map.put("web_id", webId);
             map.put("ip", ip);
             map.put("port", port);
+            map.put("ssl", true);
             map.put("root_path", rootPath);
             map.put("timeout", timeout);
             map.put("business_one", true);

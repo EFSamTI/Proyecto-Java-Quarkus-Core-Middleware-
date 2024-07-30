@@ -12,21 +12,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.CompletableFuture;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedTrustManager;
 
-import org.bson.Document;
 import org.jboss.logging.Logger;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
-
-import ec.com.eurofish.model.BusinessOnePaaSRequest;
+import ec.com.eurofish.model.BusinessOneModel;
 import ec.com.eurofish.model.MessageRequest;
 import ec.com.eurofish.util.BusinessOneCookieHandler;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -37,14 +32,7 @@ public class BusinessService {
     static final Logger log = Logger.getLogger(BusinessService.class);
 
     @Inject
-    MongoClient mongo;
-    // ReactivePanacheMongoRepository<BusinessOnePaaSRequest> repo;
-
-    private MongoCollection<Document> business() {
-        return mongo
-                .getDatabase("eurofish")
-                .getCollection("BusinessOne");
-    }
+    PGService postgres;
 
     private SSLContext context() throws NoSuchAlgorithmException, KeyManagementException {
         var trustManager = new X509ExtendedTrustManager() {
@@ -84,7 +72,7 @@ public class BusinessService {
         return sslContext;
     }
 
-    private void login(BusinessOnePaaSRequest paas) {
+    private void login(BusinessOneModel paas) {
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(paas.createLoginURI())
                 .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
@@ -105,53 +93,17 @@ public class BusinessService {
             httpResponse.headers().allValues("set-cookie").forEach(v -> {
                 builder.append(v.substring(0, v.indexOf(";") + 1));
             });
-            // repo.findById(new ObjectId(paas.getId()))
-            // .onItem()
-            // // BusinessPaaSService.stream("_id = ?1", new ObjectId(id))
-            // // .onItem()
-            // .call(item -> {
-            // log.info(item.getClass().getName());
-            // item.setCookie(builder.toString());
-            // return repo.persistOrUpdate(item);
-            // });
-            business().updateOne(
-                    Filters.eq("_id", paas.getHexId()),
-                    Updates.set("cookie", builder.toString()));
-            // BusinessPaaSService.updateCookie(paas.getId(), builder.toString());
+            log.info(update(paas.getWebId(), builder.toString()));
         } catch (IOException | InterruptedException e) {
             log.error("HTTP REQUEST ERROR", e);
         }
     }
 
-    // public BusinessOnePaaSRequest retrievePaaS(String bson) {
-    // CompletableFuture<BusinessOnePaaSRequest> future = new CompletableFuture<>();
-    // CompletableFuture.runAsync(() -> repo.findById(new ObjectId(bson))
-    // .subscribe()
-    // .with(item -> future.complete(item)));
-    // return future.join();
-    // }
-    // private BusinessOnePaaSRequest retrievePaaS(String bson) {
-    // CompletableFuture<BusinessPaaSService> future = new CompletableFuture<>();
-    // CompletableFuture.runAsync(() -> BusinessPaaSService
-    // .bySerial(bson)
-    // .subscribe()
-    // .with(item -> future.complete(item)));
-
-    // return BusinessOnePaaSRequest.fromMongoItem(future.join());
-    // }
-    public BusinessOnePaaSRequest bySerial(String id) {
-        var it = business().find(Filters.eq("_id", id)).iterator();
-        if (it.hasNext()) {
-            return BusinessOnePaaSRequest.fromDocument(it.next());
-        }
-        return null;
-    }
-
-    public String request(MessageRequest msgRequest, BusinessOnePaaSRequest paas) {
+    public String request(MessageRequest msgRequest, BusinessOneModel paas) {
         if (paas.getCookie() == null) {
             login(paas);
             //
-            paas = bySerial(paas.getHexId());
+            paas = retrieve(paas.getWebId());
         }
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(paas.createURI(msgRequest.getPath()))
@@ -174,13 +126,31 @@ public class BusinessService {
             HttpResponse<String> httpResponse = httpClient.send(httpRequest, BodyHandlers.ofString());
             if (httpResponse != null && httpResponse.statusCode() == 401) {
                 login(paas);
-                return request(msgRequest, bySerial(paas.getHexId()));
+                return request(msgRequest, retrieve(paas.getWebId()));
             }
             body = httpResponse.body();
         } catch (IOException | InterruptedException e) {
             log.error("HTTP REQUEST ERROR", e);
         }
         return body;
+    }
+
+    private BusinessOneModel retrieve(String webId) {
+        CompletableFuture<BusinessOneModel> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> postgres
+                .retrievePaaSByWebId(webId)
+                .subscribe()
+                .with(item -> future.complete((BusinessOneModel) item)));
+        return future.join();
+    }
+
+    private String update(String webId, String cookie) {
+        CompletableFuture<String> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> postgres
+                .updateCookie(webId, cookie)
+                .subscribe()
+                .with(item -> future.complete(item)));
+        return future.join();
     }
 
 }

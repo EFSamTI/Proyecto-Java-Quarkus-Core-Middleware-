@@ -8,7 +8,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 import org.jboss.logging.Logger;
 
-import ec.com.eurofish.model.GenericPaaSRequest;
+import ec.com.eurofish.model.GenericModel;
 import ec.com.eurofish.model.MessageRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -16,13 +16,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class GenericService {
     static final Logger log = Logger.getLogger(GenericService.class);
 
-    public String request(MessageRequest message, GenericPaaSRequest paas) {
+    public String request(MessageRequest message, GenericModel paas) {
         var builder = HttpRequest.newBuilder()
                 .uri(paas.createURI(message.getPath()))
                 .timeout(java.time.Duration.ofMillis(paas.getTimeout()))
                 .method(message.getVerb(), HttpRequest.BodyPublishers.ofString(message.getJsonBody()));
         try {
-            paas.getHeader().forEach((k, v) -> builder.header(k, v));
+            paas.getBody().forEach((k, v) -> builder.header(k, "%s".formatted(v)));
         } catch (IllegalArgumentException e) {
             log.error("HTTP HEADER ERROR", e);
         }

@@ -8,9 +8,9 @@ quarkus:
       password: ${MW_PG_PASSWORD}
       reactive:
         url: ${MW_PG_URL}
-  mongodb:
-    connection-string: ${MONGO_URL}
-    database: ${MONGO_DB}
+  # mongodb:
+  #   connection-string: ${MONGO_URL}
+  #   database: ${MONGO_DB}
   # oidc:
   # # oidc-client:
   #   auth-server-url: ${OIDC_SERVER_URL}
