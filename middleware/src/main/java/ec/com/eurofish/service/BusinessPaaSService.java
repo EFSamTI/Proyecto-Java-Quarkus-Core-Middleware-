@@ -1,35 +1,45 @@
 package ec.com.eurofish.service;
 
-import java.util.Map;
+// @ApplicationScoped
+public class BusinessPaaSService /* extends ReactivePanacheMongoEntity */ {
+    // static final Logger log = Logger.getLogger(BusinessPaaSService.class);
 
-import org.bson.types.ObjectId;
+    // @Inject
+    // ReactivePanacheMongoRepository<BusinessOnePaaSRequest> repo;
+    // public String ip;
+    // public Integer port;
+    // public String rootPath;
+    // public Map<String, Object> loginBody;
+    // public Integer timeout;
+    // public String cookie;
 
-import io.quarkus.mongodb.panache.common.MongoEntity;
-import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
+    // public void updateCookie(String id, String cookie) {
+    // // log.info(id);
+    // repo.findById(new ObjectId(id))
+    // .onItem()
+    // // BusinessPaaSService.stream("_id = ?1", new ObjectId(id))
+    // // .onItem()
+    // .call(item -> {
+    // log.info(item.getClass().getName());
+    // item.setCookie(cookie);
+    // return repo.persistOrUpdate(item);
+    // });
 
-@MongoEntity(collection = "BusinessOne")
-public class BusinessPaaSService extends ReactivePanacheMongoEntity {
-    public String ip;
-    public Integer port;
-    public String rootPath;
-    public Map<String, Object> loginBody;
-    public Integer timeout;
-    public String cookie;
+    // }
 
-    public static Uni<BusinessPaaSService> updateCookie(String id, String cookie) {
-        Uni<BusinessPaaSService> x = BusinessPaaSService.findById(new ObjectId(id));
-        return x
-                .onItem().transform(item -> {
-                    item.cookie = cookie;
-                    return item;
-                }).call(r -> r.persistOrUpdate());
-    }
+    // public Uni<BusinessOnePaaSRequest> bySerial(String bson) {
+    // return repo.findById(new ObjectId(bson));
+    // // return BusinessPaaSService.findById(new ObjectId(bson))
+    // // .onItem().transform(x -> (BusinessPaaSService) x).toMulti();
+    // }
 
-    public static Multi<BusinessPaaSService> bySerial(String bson) {
-        return BusinessPaaSService.findById(new ObjectId(bson))
-                .onItem().transform(x -> (BusinessPaaSService) x).toMulti();
-    }
+    // public BusinessOnePaaSRequest retrievePaaS(String bson) {
+    // CompletableFuture<BusinessOnePaaSRequest> future = new CompletableFuture<>();
+    // CompletableFuture.runAsync(() -> bySerial(bson)
+    // .subscribe()
+    // .with(item -> future.complete(item)));
+    // return future.join();
+    // // return BusinessOnePaaSRequest.fromMongoItem(future.join());
+    // }
 
 }

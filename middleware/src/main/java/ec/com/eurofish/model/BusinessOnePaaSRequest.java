@@ -3,6 +3,9 @@ package ec.com.eurofish.model;
 import java.net.URI;
 import java.util.Map;
 
+import org.bson.Document;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
+import org.bson.types.ObjectId;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ec.com.eurofish.service.BusinessPaaSService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,10 +25,13 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+// @MongoEntity(collection = "BusinessOne")
 public class BusinessOnePaaSRequest {
     static final Logger log = Logger.getLogger(BusinessOnePaaSRequest.class);
 
-    String id;
+    // @BsonId
+    // public String id;
+    ObjectId id;
     @JsonProperty("pg_id")
     Integer pgId;
     String description;
@@ -59,6 +64,7 @@ public class BusinessOnePaaSRequest {
     }
 
     @JsonIgnore
+    @BsonIgnore
     public String getLoginJsonBody() {
         String json = "{}";
         try {
@@ -71,16 +77,34 @@ public class BusinessOnePaaSRequest {
         return json;
     }
 
-    public static BusinessOnePaaSRequest fromMongoItem(BusinessPaaSService item) {
+    @BsonIgnore
+    @JsonIgnore
+    public String getHexId() {
+        return id.toHexString();
+    }
+
+    public static BusinessOnePaaSRequest fromDocument(Document doc) {
         return BusinessOnePaaSRequest.builder()
-                .id(item.id.toHexString())
-                .ip(item.ip)
-                .port(item.port)
-                .rootPath(item.rootPath)
-                .loginBody(item.loginBody)
-                .timeout(item.timeout)
-                .cookie(item.cookie)
+                .id(doc.getObjectId("_id"))
+                .ip(doc.getString("ip"))
+                .port(doc.getInteger("port"))
+                .rootPath(doc.getString("rootPath"))
+                // .loginBody(doc.get("loginBody"))
+                .timeout(doc.getInteger("timeout"))
+                .cookie(doc.getString("cookie"))
                 .build();
     }
+    // public static BusinessOnePaaSRequest fromMongoItem(BusinessPaaSService item)
+    // {
+    // return BusinessOnePaaSRequest.builder()
+    // .id(item.id.toHexString())
+    // .ip(item.ip)
+    // .port(item.port)
+    // .rootPath(item.rootPath)
+    // .loginBody(item.loginBody)
+    // .timeout(item.timeout)
+    // .cookie(item.cookie)
+    // .build();
+    // }
 
 }

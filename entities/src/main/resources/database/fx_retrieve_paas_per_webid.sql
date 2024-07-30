@@ -1,7 +1,7 @@
---FX retrieve_paas_per_id
-drop function if exists retrieve_paas_per_id(integer);
+--FX retrieve_paas_per_bson
+drop function if exists retrieve_paas_per_webid(character varying);
 
-create or replace function retrieve_paas_per_id(integer) returns table (
+create or replace function retrieve_paas_per_webid(uuid) returns table (
 	id integer,
 	description character varying,
 	web_id uuid,
@@ -17,8 +17,9 @@ create or replace function retrieve_paas_per_id(integer) returns table (
 $$
 select id, description, webid, ip, port, root_path, timeout, body_as_header, body, business_one, cookie
 from paas 
-where id = $1;
+where webid = $1;
 $$ language sql;
 
---select * from retrieve_paas_per_id(2)
---END FX retrieve_paas_per_id
+
+--select * from retrieve_paas_per_bson('')
+--END FX retrieve_paas_per_bson

@@ -20,27 +20,35 @@ import lombok.experimental.FieldDefaults;
 public class GenericPaaSRequest {
     static final Logger log = Logger.getLogger(GenericPaaSRequest.class);
 
-    String id;
-    @JsonProperty("pg_id")
-    Integer pgId;
-    String description;
-    String ip;
-    Integer port;
-    boolean ssl;
+    Integer id;
+    @JsonProperty("web_id")
+    public String webId;
+    public String description;
+    public String ip;
+    public Integer port;
     @JsonProperty("root_path")
-    String rootPath;
-    @JsonProperty("header")
-    Map<String, String> header;
-    Integer timeout;
+    public String rootPath;
+    @JsonProperty("body_as_header")
+    public boolean bodyAsHeader;
+    @JsonProperty("body")
+    public Map<String, Object> body;
+    public Integer timeout;
 
     @JsonIgnore
     public Tuple getPGJsonBody() {
         String json = "{}";
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", pgId);
+            map.put("id", id);
             map.put("description", description);
-            map.put("bsonid", id);
+            map.put("web_id", webId);
+            map.put("ip", ip);
+            map.put("port", port);
+            map.put("root_path", rootPath);
+            map.put("timeout", timeout);
+            map.put("business_one", true);
+            map.put("body_as_header", bodyAsHeader);
+            map.put("body", body);
             ObjectMapper mapper = new ObjectMapper();
             json = mapper.writeValueAsString(map);
             log.info(json);

@@ -4,7 +4,7 @@ import java.util.List;
 
 import ec.com.eurofish.model.BusinessOnePaaSRequest;
 import ec.com.eurofish.model.GenericPaaSRequest;
-import ec.com.eurofish.model.PGPaaSModel;
+import ec.com.eurofish.model.PaaSModel;
 import io.quarkus.reactive.datasource.ReactiveDataSource;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -20,25 +20,25 @@ public class PGService {
     @ReactiveDataSource("entities")
     PgPool pg;
 
-    public Multi<PGPaaSModel> retrievePaaSByBson(String bson) {
-        return pg.preparedQuery("select * from retrieve_paas_per_bson($1)")
+    public Multi<PaaSModel> retrievePaaSByWebId(String bson) {
+        return pg.preparedQuery("select * from retrieve_paas_per_webid($1)")
                 .execute(Tuple.of(bson))
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem().transform(PGPaaSModel::from);
+                .onItem().transform(PaaSModel::from);
     }
 
-    public Multi<PGPaaSModel> retrievePaaSList() {
+    public Multi<PaaSModel> retrievePaaSList() {
         return pg.preparedQuery("select * from retrieve_paas_all()")
                 .execute()
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem().transform(PGPaaSModel::from);
+                .onItem().transform(PaaSModel::from);
     }
 
-    public Multi<PGPaaSModel> retrievePaaSListByBson(List<String> bson) {
+    public Multi<PaaSModel> retrievePaaSListByBson(List<String> bson) {
         return pg.preparedQuery("select * from retrieve_paas_list_per_bson($1)")
                 .execute(Tuple.of(String.join(",", bson)))
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem().transform(PGPaaSModel::from);
+                .onItem().transform(PaaSModel::from);
     }
 
     public Uni<GenericPaaSRequest> saveGenericPaaS(GenericPaaSRequest request) {
@@ -51,6 +51,12 @@ public class PGService {
         return pg.preparedQuery("select save_paas_record($1)")
                 .execute(request.getPGJsonBody())
                 .replaceWith(request);
+    }
+
+    public Uni<String> updateCookie(String webId, String cookie) {
+        return pg.preparedQuery("select update_cookie($1, $2)")
+                .execute(Tuple.of(webId, cookie))
+                .replaceWith(cookie);
     }
 
 }

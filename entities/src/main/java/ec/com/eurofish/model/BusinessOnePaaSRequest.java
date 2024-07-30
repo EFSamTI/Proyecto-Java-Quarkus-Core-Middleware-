@@ -20,16 +20,18 @@ import lombok.experimental.FieldDefaults;
 public class BusinessOnePaaSRequest {
     static final Logger log = Logger.getLogger(BusinessOnePaaSRequest.class);
 
-    String id;
-    @JsonProperty("pg_id")
-    public Integer pgId;
+    Integer id;
+    @JsonProperty("web_id")
+    public String webId;
     public String description;
     public String ip;
     public Integer port;
     @JsonProperty("root_path")
     public String rootPath;
-    @JsonProperty("login_body")
-    public Map<String, Object> loginBody;
+    // @JsonProperty("body_as_header")
+    // public boolean bodyAsHeader;
+    @JsonProperty("body")
+    public Map<String, Object> body;
     public Integer timeout;
 
     @JsonIgnore
@@ -37,9 +39,16 @@ public class BusinessOnePaaSRequest {
         String json = "{}";
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", pgId);
+            map.put("id", id);
             map.put("description", description);
-            map.put("bsonid", id);
+            map.put("web_id", webId);
+            map.put("ip", ip);
+            map.put("port", port);
+            map.put("root_path", rootPath);
+            map.put("timeout", timeout);
+            map.put("business_one", true);
+            map.put("body_as_header", false);
+            map.put("body", body);
             ObjectMapper mapper = new ObjectMapper();
             json = mapper.writeValueAsString(map);
             log.info(json);
