@@ -15,11 +15,11 @@ class EnvironmentValues:
 
     @property
     def logstash_host(self) -> str:
-        return env.get('LOGSTASH_HOST')
+        return env.get('ELK_HOST')
 
     @property
     def logstash_port(self) -> int:
-        return int(env.get('LOGSTASH_PORT'))
+        return int(env.get('ELK_PORT'))
 
     @property
     def logstash_extra(self) -> dict:
@@ -41,27 +41,27 @@ class EnvironmentValues:
 
     @property
     def postgres_user(self) -> str:
-        return env.get('POSTGRES_USER')
+        return env.get('MW_PG_USERNAME')
 
     @property
     def postgres_password(self) -> str:
-        return env.get('POSTGRES_PASSWORD')
+        return env.get('MW_PG_PASSWORD')
 
     @property
     def mosquitto_host(self) -> str:
-        return env.get('MOSQUITTO_HOST')
+        return env.get('MQTT_HOST')
 
     @property
     def mosquitto_port(self) -> int:
-        return int(env.get('MOSQUITTO_PORT'))
+        return int(env.get('MQTT_PORT'))
 
     @property
     def mosquitto_user(self) -> str:
-        return env.get('MOSQUITTO_USER')
+        return env.get('MQTT_USER')
 
     @property
     def mosquitto_password(self) -> str:
-        return env.get('MOSQUITTO_PASSWORD')
+        return env.get('MQTT_PASSWD')
 
 
 class Logger:
