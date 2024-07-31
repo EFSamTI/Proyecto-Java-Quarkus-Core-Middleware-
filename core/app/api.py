@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from common import LOG, ENV, MessageRequest
 from generic import generic_request
+from mosquitto import Mosquitto
 from postgres import retrieve_paas
 from service_layer import business_one_request
 
@@ -17,22 +18,17 @@ app.add_middleware(
 )
 
 
-@app.get('/v1/api/paas/{web_id}')
-async def retrieve_paas_api(web_id: str):
-    try:
-        return retrieve_paas(web_id)
-    except Exception as e:
-        LOG.error(str(e), extra=ENV.logstash_extra)
-        return {'error': str(e)}
-
-
 @app.post('/v1/api/message/generic')
 async def generic_api(request: MessageRequest):
     try:
         paas = retrieve_paas(request.destination)
         if paas:
             LOG.info(paas, extra=ENV.logstash_extra)
-            return generic_request(request, paas)
+            result = generic_request(request, paas)
+            if not result:
+                with Mosquitto() as mqtt:
+                    mqtt.generic(request.model_dump())
+            return result
     except Exception as e:
         LOG.error(str(e), extra=ENV.logstash_extra)
         return {'error': str(e)}
@@ -44,7 +40,11 @@ async def business_one_api(request: MessageRequest):
         paas = retrieve_paas(request.destination)
         if paas:
             LOG.info(paas, extra=ENV.logstash_extra)
-            return business_one_request(request, paas)
+            result = business_one_request(request, paas)
+            if not result:
+                with Mosquitto() as mqtt:
+                    mqtt.business_one(request.model_dump())
+            return result
     except Exception as e:
         LOG.error(str(e), extra=ENV.logstash_extra)
         return {'error': str(e)}

@@ -22,7 +22,7 @@ class EnvironmentValues:
         return int(env.get('LOGSTASH_PORT'))
 
     @property
-    def logstash_extra(self):
+    def logstash_extra(self) -> dict:
         return {
             'app_name': 'Core'
         }
@@ -46,6 +46,22 @@ class EnvironmentValues:
     @property
     def postgres_password(self) -> str:
         return env.get('POSTGRES_PASSWORD')
+
+    @property
+    def mosquitto_host(self) -> str:
+        return env.get('MOSQUITTO_HOST')
+
+    @property
+    def mosquitto_port(self) -> int:
+        return int(env.get('MOSQUITTO_PORT'))
+
+    @property
+    def mosquitto_user(self) -> str:
+        return env.get('MOSQUITTO_USER')
+
+    @property
+    def mosquitto_password(self) -> str:
+        return env.get('MOSQUITTO_PASSWORD')
 
 
 class Logger:

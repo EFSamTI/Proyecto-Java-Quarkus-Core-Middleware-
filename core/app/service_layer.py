@@ -7,7 +7,7 @@ from common import Entry, LOG, ENV, MessageRequest
 from postgres import update_cookie
 
 
-def login(paas: Entry) -> Optional[Entry]:
+def _login(paas: Entry) -> Optional[Entry]:
     login_url = 'https://{}{}{}/Login'.format(
         paas.ip,
         ':{}'.format(paas.port) if paas.port != 80 else '',
@@ -46,6 +46,6 @@ def business_one_request(message: MessageRequest, paas: Entry, count: int = 0) -
         return json.loads(response.content.decode('utf-8'))
     elif response.status_code == 401:
         if count < 3:
-            return business_one_request(message, login(paas), count + 1)
+            return business_one_request(message, _login(paas), count + 1)
     else:
         LOG.error('[{}] {}'.format(response.status_code, response.reason), extra=ENV.logstash_extra)
