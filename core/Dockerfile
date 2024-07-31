@@ -9,5 +9,11 @@ ENV TZ America/Guayaquil
 EXPOSE 8490
 
 COPY app /app
+COPY certs /certs
 
-CMD [ "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8490", "--workers", "10", "--no-access-log" ]
+CMD [ "uvicorn", "app.main:app", \
+    "--host", "0.0.0.0", \
+    "--port", "8490", \
+    "--ssl-certfile", "/certs/eurofish_com_ec.pem", \
+    "--ssl-keyfile", "/certs/eurofish.key", \
+    "--workers", "10", "--no-access-log" ]

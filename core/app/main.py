@@ -22,6 +22,10 @@ if __name__ == '__main__':
     ip = __get_ip()
     LOG.info(ip)
     try:
-        uvicorn.run(app, host=ip, port=8490, access_log=False)
+        uvicorn.run(app,
+                    host=ip, port=8490,
+                    ssl_certfile='../certs/eurofish_com_ec.pem',
+                    ssl_keyfile='../certs/eurofish.key',
+                    access_log=False)
     except Exception as e:
         LOG.error(e)

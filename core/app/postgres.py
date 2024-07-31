@@ -64,8 +64,8 @@ def retrieve_paas(web_id: str) -> Optional[Entry]:
         return _t(**data[0])
 
 
-def update_cookie(web_id: str, cookie: str) -> Optional[Entry]:
-    data = __call_proc_execute('update_cookie', (UUID(web_id), cookie))
+def update_cookie(web_id: UUID, cookie: str) -> Optional[Entry]:
+    data = __call_proc_execute('update_cookie', (web_id, cookie))
     if len(data) > 0:
         _t = type('PaaS', (Entry,), {})
         return _t(**data[0])

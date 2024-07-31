@@ -52,6 +52,7 @@ class Logger:
     def __init__(self, name: str = 'Core'):
         self._logger = logging.getLogger(name)
         self._logger.setLevel(logging.DEBUG)
+        # self._logger.addHandler(logging.StreamHandler())
         self._logger.addHandler(
             logstash.TCPLogstashHandler(
                 ENV.logstash_host, ENV.logstash_port, version=1
