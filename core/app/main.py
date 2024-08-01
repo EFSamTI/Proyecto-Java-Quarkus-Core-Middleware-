@@ -2,8 +2,8 @@ from socket import socket, AF_INET, SOCK_DGRAM
 
 import uvicorn
 
-from api import *
-from common import LOG
+from core.app.api import *
+from core.app.common import LOG
 
 
 def __get_ip() -> str:

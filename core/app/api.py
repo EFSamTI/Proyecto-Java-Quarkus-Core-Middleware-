@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from common import LOG, ENV, MessageRequest
-from generic import generic_request
-from mosquitto import Mosquitto
-from postgres import retrieve_paas
-from service_layer import business_one_request
+from core.app.common import LOG, ENV, MessageRequest
+from core.app.generic import generic_request
+from core.app.mosquitto import Mosquitto
+from core.app.postgres import retrieve_paas
+from core.app.service_layer import business_one_request
 
 app = FastAPI()
 

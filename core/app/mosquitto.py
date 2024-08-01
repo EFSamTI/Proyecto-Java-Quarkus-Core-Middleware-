@@ -2,7 +2,7 @@ import json
 
 import paho.mqtt.client as mqtt
 
-from common import LOG, ENV
+from core.app.common import LOG, ENV
 
 
 def _on_connect(_client: mqtt.Client, _userdata, _flags, rc):

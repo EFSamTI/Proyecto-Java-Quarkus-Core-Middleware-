@@ -3,8 +3,8 @@ from typing import Optional
 
 from requests import request, post, Response
 
-from common import Entry, LOG, ENV, MessageRequest
-from postgres import update_cookie
+from core.app.common import Entry, LOG, ENV, MessageRequest
+from core.app.postgres import update_cookie
 
 
 def _login(paas: Entry) -> Optional[Entry]:

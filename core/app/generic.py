@@ -3,7 +3,7 @@ from typing import Optional
 
 from requests import request, Response
 
-from common import Entry, LOG, ENV, MessageRequest
+from core.app.common import Entry, LOG, ENV, MessageRequest
 
 
 def generic_request(message: MessageRequest, paas: Entry) -> Optional[dict]:

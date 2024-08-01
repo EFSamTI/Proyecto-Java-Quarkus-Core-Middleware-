@@ -4,7 +4,7 @@ from uuid import UUID
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from common import ENV, Entry
+from core.app.common import ENV, Entry
 
 
 def __execute(sql: str) -> List[dict]:

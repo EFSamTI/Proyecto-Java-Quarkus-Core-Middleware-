@@ -2,13 +2,13 @@ FROM python:3.12
 LABEL author="John, johnmoscoso911@gmail.com"
 
 RUN pip install --upgrade pip
-RUN pip install fastapi uvicorn paho-mqtt requests psycopg2-binary python-logstah
+RUN pip install fastapi uvicorn paho-mqtt requests psycopg2-binary python-logstash
 
 ENV TZ America/Guayaquil
 
 EXPOSE 8490
 
-COPY app /app
+COPY core/app /app
 COPY certs /certs
 
 CMD [ "uvicorn", "app.main:app", \
