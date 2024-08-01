@@ -11,6 +11,3 @@ pluginManagement {
 rootProject.name='eurofish'
 
 include 'entities'
-include 'middleware'
-// include ':middleware:entities'
-// project(':entities').projectDir = new File('entities')
