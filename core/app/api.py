@@ -25,7 +25,7 @@ async def generic_api(request: MessageRequest):
         if paas:
             LOG.info(paas, extra=ENV.logstash_extra)
             result = generic_request(request, paas)
-            if not result:
+            if not result and paas.feedback:
                 with Mosquitto() as mqtt:
                     mqtt.generic(request.model_dump())
             return result
@@ -41,7 +41,7 @@ async def business_one_api(request: MessageRequest):
         if paas:
             LOG.info(paas, extra=ENV.logstash_extra)
             result = business_one_request(request, paas)
-            if not result:
+            if not result and paas.feedback:
                 with Mosquitto() as mqtt:
                     mqtt.business_one(request.model_dump())
             return result

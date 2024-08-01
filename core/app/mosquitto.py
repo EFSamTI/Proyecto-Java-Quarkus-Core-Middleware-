@@ -5,17 +5,17 @@ import paho.mqtt.client as mqtt
 from core.app.common import LOG, ENV
 
 
-def _on_connect(_client: mqtt.Client, _userdata, _flags, rc):
-    LOG.info('Connected' if rc == mqtt.MQTT_ERR_SUCCESS else 'No connected', extra=ENV.logstash_extra)
+def _on_connect(client, userdata, connect_flags, reason_code, properties):
+    LOG.info('Connected' if reason_code == mqtt.MQTT_ERR_SUCCESS else 'No connected', extra=ENV.logstash_extra)
 
 
-def _on_publish(_client: mqtt.Client, _userdata, mid):
+def _on_publish(client, userdata, mid, reason_code, properties):
     LOG.info('Message ID %d' % mid, extra=ENV.logstash_extra)
 
 
 class Mosquitto:
     def __init__(self):
-        self._client = mqtt.Client('Core')
+        self._client = mqtt.Client()  # mqtt.CallbackAPIVersion.VERSION1
         self._client.on_connect = _on_connect
         self._client.on_publish = _on_publish
         self._client.disable_logger()
