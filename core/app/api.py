@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from json import loads
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.app.common import LOG, ENV, MessageRequest
@@ -45,6 +47,21 @@ async def business_one_api(request: MessageRequest):
                 with Mosquitto() as mqtt:
                     mqtt.business_one(request.model_dump())
             return result
+    except Exception as e:
+        LOG.error(str(e), extra=ENV.logstash_extra)
+        return {'error': str(e)}
+
+
+@app.post('/v1/api/publish')
+async def mqtt_publish(request: Request):
+    try:
+        message: dict = loads(await request.body())
+        if isinstance(message.get('message'), dict):
+            with Mosquitto() as mqtt:
+                mqtt.publish(
+                    message.get('topic'),
+                    message.get('message')
+                )
     except Exception as e:
         LOG.error(str(e), extra=ENV.logstash_extra)
         return {'error': str(e)}

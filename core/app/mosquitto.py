@@ -28,11 +28,11 @@ class Mosquitto:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._client.disconnect()
 
-    def _publish(self, topic: str, payload: dict) -> mqtt.MQTTMessageInfo:
+    def publish(self, topic: str, payload: dict) -> mqtt.MQTTMessageInfo:
         return self._client.publish(topic, json.dumps(payload).encode('utf-8'), qos=1)
 
     def generic(self, payload: dict) -> bool:
-        r = self._publish('message/generic', payload)
+        r = self.publish('message/generic', payload)
         if r.rc == mqtt.MQTT_ERR_SUCCESS:
             LOG.info('Message ID {}: success'.format(r.mid), extra=ENV.logstash_extra)
         elif r.rc == mqtt.MQTT_ERR_NO_CONN:
@@ -40,4 +40,4 @@ class Mosquitto:
         return r.is_published()
 
     def business_one(self, payload: dict) -> bool:
-        return self._publish('message/business-one', payload).is_published()
+        return self.publish('message/business-one', payload).is_published()
