@@ -1,4 +1,5 @@
 import json
+import ssl
 
 import paho.mqtt.client as mqtt
 
@@ -16,9 +17,15 @@ def _on_publish(client, userdata, mid, reason_code, properties):
 class Mosquitto:
     def __init__(self):
         self._client = mqtt.Client()  # mqtt.CallbackAPIVersion.VERSION1
+        # certs_folder = abspath('../certs')
+        # print(certs_folder)
+        # ca_certs=join(certs_folder, 'ca.pem'),
+        # certfile=join(certs_folder, 'eurofish_com_ec.pem'),
+        # keyfile=join(certs_folder, 'eurofish.key'),
         self._client.on_connect = _on_connect
         self._client.on_publish = _on_publish
         self._client.disable_logger()
+        self._client.tls_set(cert_reqs=ssl.CERT_NONE)
         self._client.username_pw_set(ENV.mosquitto_user, ENV.mosquitto_password)
         self._client.connect(ENV.mosquitto_host, ENV.mosquitto_port)
 
